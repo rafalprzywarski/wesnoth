@@ -64,7 +64,7 @@ dialog_manager::~dialog_manager()
 {
 	is_in_dialog = reset_to;
 	int mousex, mousey;
-	SDL_GetMouseState(&mousex, &mousey);
+	video2::getMouseState(&mousex, &mousey);
 	SDL_Event pb_event;
 	pb_event.type = SDL_MOUSEMOTION;
 	pb_event.motion.state = 0;

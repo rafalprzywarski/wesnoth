@@ -28,6 +28,11 @@
 
 class CVideo;  // lines 56-56
 
+namespace video2
+{
+Uint32 getMouseState(int *x, int *y);
+}
+
 namespace help {
 
 help_menu::help_menu(CVideo &video, const section& toplevel, int max_height) :
@@ -157,7 +162,7 @@ int help_menu::process()
 {
 	int res = menu::process();
 	int mousex, mousey;
-	SDL_GetMouseState(&mousex,&mousey);
+	video2::getMouseState(&mousex,&mousey);
 
 	if (!visible_items_.empty() &&
             static_cast<std::size_t>(res) < visible_items_.size()) {

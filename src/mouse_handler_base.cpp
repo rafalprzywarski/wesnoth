@@ -92,7 +92,7 @@ void mouse_handler_base::touch_motion_event(const SDL_TouchFingerEvent& event, c
 void mouse_handler_base::mouse_update(const bool browse, map_location loc)
 {
 	int x, y;
-	SDL_GetMouseState(&x, &y);
+	video2::getMouseState(&x, &y);
 	mouse_motion(x, y, browse, true, loc);
 }
 
@@ -133,7 +133,7 @@ bool mouse_handler_base::mouse_motion_default(int x, int y, bool /*update*/)
 	int my = drag_from_y_;
 
 	if(is_dragging() && !dragging_started_) {
-		Uint32 mouse_state = dragging_left_ || dragging_right_ ? SDL_GetMouseState(&mx, &my) : 0;
+		Uint32 mouse_state = dragging_left_ || dragging_right_ ? video2::getMouseState(&mx, &my) : 0;
 #ifdef MOUSE_TOUCH_EMULATION
 		if(dragging_left_ && (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT))) {
 			// Monkey-patch touch controls again to make them look like left button.
@@ -311,7 +311,7 @@ void mouse_handler_base::left_drag_end(int /*x*/, int /*y*/, const bool browse)
 void mouse_handler_base::mouse_wheel(int scrollx, int scrolly, bool browse)
 {
 	int x, y;
-	SDL_GetMouseState(&x, &y);
+	video2::getMouseState(&x, &y);
 
 	int movex = scrollx * preferences::scroll_speed();
 	int movey = scrolly * preferences::scroll_speed();
@@ -361,7 +361,7 @@ void mouse_handler_base::right_mouse_up(int x, int y, const bool browse)
 void mouse_handler_base::init_dragging(bool& dragging_flag)
 {
 	dragging_flag = true;
-	SDL_GetMouseState(&drag_from_x_, &drag_from_y_);
+	video2::getMouseState(&drag_from_x_, &drag_from_y_);
 	drag_from_hex_ = gui().hex_clicked_on(drag_from_x_, drag_from_y_);
 }
 

@@ -43,6 +43,8 @@ CVideo* CVideo::singleton_ = nullptr;
 namespace
 {
 surface frameBuffer = nullptr;
+SDL_Texture *frameBufferTexture = nullptr;
+int frameBufferPixelsPerPoint = 1;
 bool fake_interactive = false;
 
 const unsigned MAGIC_DPI_SCALE_NUMBER = 96;
@@ -70,8 +72,8 @@ void trigger_full_redraw()
 	SDL_Event event;
 	event.type = SDL_WINDOWEVENT;
 	event.window.event = SDL_WINDOWEVENT_RESIZED;
-	event.window.data1 = (*frameBuffer).h;
-	event.window.data2 = (*frameBuffer).w;
+	event.window.data1 = (*frameBuffer).h / frameBufferPixelsPerPoint;
+	event.window.data2 = (*frameBuffer).w / frameBufferPixelsPerPoint;
 
 	for(const auto& layer : draw_layers) {
 		layer->handle_window_event(event);
@@ -191,8 +193,23 @@ void CVideo::update_framebuffer()
 		return;
 	}
 
+#ifdef __APPLE__
+	auto output_size = window->get_output_size();
+
+	if (frameBuffer && frameBuffer->w == output_size.x && frameBuffer->h == output_size.y)
+		return;
+
+	frameBufferPixelsPerPoint = output_size.x / window->get_size().x;
+	frameBuffer = surface{output_size.x, output_size.y};
+
+	if (frameBufferTexture)
+		SDL_DestroyTexture(frameBufferTexture);
+	frameBufferTexture = SDL_CreateTexture(*window, frameBuffer->format->format, SDL_TEXTUREACCESS_STREAMING, frameBuffer->w, frameBuffer->h);
+	SDL_SetTextureBlendMode(frameBufferTexture, SDL_BLENDMODE_NONE);
+#else // __APPLE__
 	surface fb = SDL_GetWindowSurface(*window);
 	frameBuffer = fb;
+#endif // __APPLE__
 }
 
 void CVideo::init_window()
@@ -207,11 +224,15 @@ void CVideo::init_window()
 	const int h = res.y;
 
 	uint32_t window_flags = 0;
+	uint32_t render_flags = 0;
 
 	// Add any more default flags here
 	window_flags |= SDL_WINDOW_RESIZABLE;
 #ifdef __APPLE__
 	window_flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+	render_flags = SDL_RENDERER_ACCELERATED; // SDL2 does not support software HiDPI renderers
+#else
+	render_flags = SDL_RENDERER_SOFTWARE;
 #endif
 
 	if(preferences::fullscreen()) {
@@ -221,7 +242,7 @@ void CVideo::init_window()
 	}
 
 	// Initialize window
-	window.reset(new sdl::window("", x, y, w, h, window_flags, SDL_RENDERER_SOFTWARE));
+	window.reset(new sdl::window("", x, y, w, h, window_flags, render_flags));
 
 	std::cerr << "Setting mode to " << w << "x" << h << std::endl;
 
@@ -312,6 +333,10 @@ void CVideo::flip()
 	}
 
 	if(window) {
+#ifdef __APPLE__
+		SDL_UpdateTexture(frameBufferTexture, nullptr, frameBuffer->pixels, frameBuffer->pitch);
+		SDL_RenderCopy(*window, frameBufferTexture, nullptr, nullptr);
+#endif // __APPLE__
 		window->render();
 	}
 }
@@ -485,6 +510,11 @@ surface& CVideo::getSurface()
 	return frameBuffer;
 }
 
+int CVideo::getPixelsPerPoint()
+{
+	return frameBufferPixelsPerPoint;
+}
+
 point CVideo::current_resolution()
 {
 	return point(window->get_size()); // Convert from plain SDL_Point
@@ -604,4 +634,22 @@ void CVideo::lock_flips(bool lock)
 	} else {
 		--flip_locked_;
 	}
+}
+
+namespace video2
+{
+
+Uint32 getMouseState(int *x, int *y)
+{
+	auto result = SDL_GetMouseState(x, y);
+#ifdef __APPLE__
+	auto ppp = CVideo::getPixelsPerPoint();
+	if (x)
+		*x *= ppp;
+	if (y)
+		*y *= ppp;
+#endif // __APPLE__
+	return result;
+}
+
 }

@@ -458,8 +458,11 @@ void sdl_event_handler::handle_event(const SDL_Event& event)
 					break;
 
 				case SDL_WINDOWEVENT_RESIZED:
-					video_resize({event.window.data1, event.window.data2});
+				{
+					auto pixelsPerPoint = CVideo::getPixelsPerPoint();
+					video_resize({event.window.data1 * pixelsPerPoint, event.window.data2 * pixelsPerPoint});
 					break;
+				}
 
 				case SDL_WINDOWEVENT_ENTER:
 				case SDL_WINDOWEVENT_FOCUS_GAINED:

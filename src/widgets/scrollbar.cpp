@@ -278,7 +278,7 @@ void scrollbar::handle_event(const SDL_Event& event)
 	{
 		const SDL_MouseWheelEvent& e = event.wheel;
 		int x, y;
-		SDL_GetMouseState(&x, &y);
+		video2::getMouseState(&x, &y);
 		bool on_groove = sdl::point_in_rect(x, y, groove);
 		if (on_groove && e.y < 0) {
 			move_position(scroll_rate_);

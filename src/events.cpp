@@ -551,6 +551,22 @@ void pump()
 		// Remove all draw events except one
 		events.erase(first_draw_event + 1, events.end());
 	}
+	
+#ifdef __APPLE__
+	const auto pixelsPerPoint = CVideo::getPixelsPerPoint();
+	for (SDL_Event& event : events) {
+		if (event.type == SDL_MOUSEMOTION) {
+			event.motion.x *= pixelsPerPoint;
+			event.motion.y *= pixelsPerPoint;
+			event.motion.xrel *= pixelsPerPoint;
+			event.motion.yrel *= pixelsPerPoint;
+		}
+		else if (event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEBUTTONDOWN) {
+			event.button.x *= pixelsPerPoint;
+			event.button.y *= pixelsPerPoint;
+		}
+	}
+#endif // __APPLE__
 
 	for(SDL_Event& event : events) {
 		for(context& c : event_contexts) {
@@ -629,8 +645,8 @@ void pump()
 				break;
 
 			case SDL_WINDOWEVENT_RESIZED:
-				info.resize_dimensions.first = event.window.data1;
-				info.resize_dimensions.second = event.window.data2;
+				info.resize_dimensions.first = event.window.data1 * CVideo::getPixelsPerPoint();
+				info.resize_dimensions.second = event.window.data2 * CVideo::getPixelsPerPoint();
 				break;
 			}
 
@@ -765,8 +781,8 @@ void raise_resize_event()
 	event.window.type = SDL_WINDOWEVENT;
 	event.window.event = SDL_WINDOWEVENT_RESIZED;
 	event.window.windowID = 0; // We don't check this anyway... I think...
-	event.window.data1 = CVideo::get_singleton().get_width();
-	event.window.data2 = CVideo::get_singleton().get_height();
+	event.window.data1 = CVideo::get_singleton().get_width() / CVideo::getPixelsPerPoint();
+	event.window.data2 = CVideo::get_singleton().get_height() / CVideo::getPixelsPerPoint();
 
 	SDL_PushEvent(&event);
 }

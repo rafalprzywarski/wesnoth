@@ -55,6 +55,11 @@
 static lg::log_domain log_scripting_lua("scripting/lua");
 #define ERR_LUA LOG_STREAM(err, log_scripting_lua)
 
+namespace video2
+{
+Uint32 getMouseState(int *x, int *y);
+}
+
 namespace lua_gui2 {
 
 
@@ -185,7 +190,7 @@ int show_story(lua_State* L) {
 int show_menu(lua_State* L) {
 	std::vector<config> items = lua_check<std::vector<config>>(L, 1);
 	SDL_Rect pos {1,1,1,1};
-	SDL_GetMouseState(&pos.x, &pos.y);
+	video2::getMouseState(&pos.x, &pos.y);
 
 	int initial = -1;
 	bool markup = false;

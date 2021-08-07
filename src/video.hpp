@@ -196,6 +196,12 @@ public:
 
 	/** Returns a reference to the framebuffer. */
 	surface& getSurface();
+	
+	/** Returns the number of pixels per point on Retina displays. */
+	static int getPixelsPerPoint();
+
+	/** Retrieves the mouse state, but multiplies x and y by getPixelsPerPoint() */
+	static Uint32 getMouseState(int *x, int *y);
 
 	/**
 	 * Stop the screen being redrawn. Anything that happens while the updates are locked will
@@ -351,4 +357,7 @@ protected:
 };
 
 void trigger_full_redraw();
+
+Uint32 getMouseState(int *x, int *y);
+
 }

@@ -421,7 +421,7 @@ void command_executor::show_menu(const std::vector<config>& items_arg, int xloc,
 	const theme::menu* submenu = gui.get_theme().get_menu_item(items[res]["id"]);
 	if (submenu) {
 		int y,x;
-		SDL_GetMouseState(&x,&y);
+		video2::getMouseState(&x,&y);
 		this->show_menu(submenu->items(), x, y, submenu->is_context(), gui);
 	} else {
 		const hotkey::hotkey_command& cmd = hotkey::get_hotkey_command(items[res]["id"]);

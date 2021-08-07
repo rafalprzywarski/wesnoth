@@ -28,6 +28,11 @@
 
 #include <SDL2/SDL.h>
 
+namespace video2
+{
+Uint32 getMouseState(int *x, int *y);
+}
+
 namespace gui2
 {
 SDL_Rect create_rect(const point& origin, const point& size)
@@ -118,7 +123,7 @@ wfl::map_formula_callable get_screen_size_variables()
 point get_mouse_position()
 {
 	int x, y;
-	SDL_GetMouseState(&x, &y);
+	video2::getMouseState(&x, &y);
 
 	return point(x, y);
 }

@@ -62,7 +62,7 @@ void controller_base::long_touch_callback(int x, int y)
 	if(long_touch_timer_ != 0 && !get_mouse_handler_base().dragging_started()) {
 		int x_now;
 		int y_now;
-		uint32_t mouse_state = SDL_GetMouseState(&x_now, &y_now);
+		uint32_t mouse_state = video2::getMouseState(&x_now, &y_now);
 
 #ifdef MOUSE_TOUCH_EMULATION
 		if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
@@ -385,7 +385,7 @@ void controller_base::play_slice(bool is_delay_enabled)
 	bool was_scrolling = scrolling_;
 
 	int mousex, mousey;
-	uint8_t mouse_flags = SDL_GetMouseState(&mousex, &mousey);
+	uint8_t mouse_flags = video2::getMouseState(&mousex, &mousey);
 
 	scrolling_ = handle_scroll(mousex, mousey, mouse_flags);
 

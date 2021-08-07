@@ -156,7 +156,7 @@ void scrollarea::handle_event(const SDL_Event& event)
 	if (event.type == SDL_MOUSEWHEEL) {
 		const SDL_MouseWheelEvent &ev = event.wheel;
 		int x, y;
-		SDL_GetMouseState(&x, &y);
+		video2::getMouseState(&x, &y);
 		if (sdl::point_in_rect(x, y, inner_location())) {
 			if (ev.y > 0) {
 				scrollbar_.scroll_up();

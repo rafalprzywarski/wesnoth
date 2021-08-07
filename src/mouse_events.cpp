@@ -44,7 +44,6 @@
 #include "whiteboard/manager.hpp"  // for manager, etc
 #include "whiteboard/typedefs.hpp" // for whiteboard_lock
 
-#include <SDL2/SDL_mouse.h> // for SDL_GetMouseState
 #include <cassert>     // for assert
 #include <new>         // for bad_alloc
 #include <ostream>     // for operator<<, basic_ostream, etc
@@ -101,7 +100,7 @@ void mouse_handler::touch_motion(int x, int y, const bool browse, bool update, m
 {
 	// Frankensteining from mouse_motion(), as it has a lot in common, but a lot of differences too.
 	// Copy-pasted from everywhere. TODO: generalize the two.
-	SDL_GetMouseState(&x,&y);
+	video2::getMouseState(&x,&y);
 
 	// This is from mouse_handler_base::mouse_motion_default()
 	tooltips::process(x, y);
@@ -130,7 +129,7 @@ void mouse_handler::touch_motion(int x, int y, const bool browse, bool update, m
 	int my = drag_from_y_;
 	if(is_dragging() && !dragging_started_) {
 		if(dragging_touch_) {
-			SDL_GetMouseState(&mx, &my);
+			video2::getMouseState(&mx, &my);
 			const double drag_distance = std::pow(static_cast<double>(drag_from_x_- mx), 2)
 										 + std::pow(static_cast<double>(drag_from_y_- my), 2);
 			if(drag_distance > drag_threshold()*drag_threshold()) {
@@ -143,7 +142,7 @@ void mouse_handler::touch_motion(int x, int y, const bool browse, bool update, m
 	const auto found_unit = find_unit(selected_hex_);
 	bool selected_hex_has_my_unit = found_unit.valid() && found_unit.get_shared_ptr()->side() == side_num_;
 	if((browse || !found_unit.valid()) && is_dragging() && dragging_started_) {
-		SDL_GetMouseState(&mx, &my);
+		video2::getMouseState(&mx, &my);
 
 		if(sdl::point_in_rect(x, y, gui().map_area())) {
 			int dx = drag_from_x_ - mx;
@@ -379,7 +378,7 @@ void mouse_handler::mouse_motion(int x, int y, const bool browse, bool update, m
 	// to highlight all the hexes where the mouse passed.
 	// Also, sometimes it seems to have one *very* obsolete
 	// and isolated mouse motion event when using drag&drop
-	SDL_GetMouseState(&x, &y); // <-- modify x and y
+	video2::getMouseState(&x, &y); // <-- modify x and y
 
 	if(mouse_handler_base::mouse_motion_default(x, y, update)) {
 		return;
@@ -649,7 +648,7 @@ const map_location mouse_handler::hovered_hex() const
 {
 	int x = -1;
 	int y = -1;
-	SDL_GetMouseState(&x, &y);
+	video2::getMouseState(&x, &y);
 	return gui_->hex_clicked_on(x, y);
 }
 
